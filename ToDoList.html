@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List with Login</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background: url('https://source.unsplash.com/1600x900/?nature,abstract') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .logo {
+            width: 120px;
+            margin-bottom: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            text-align: center;
+            border: 2px solid #ff758c;
+        }
+        h2 {
+            color: #ff416c;
+        }
+        input, button, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input, textarea {
+            border: 2px solid #ff758c;
+        }
+        button {
+            background: linear-gradient(to right, #ff758c, #ff7eb3);
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: linear-gradient(to right, #ff416c, #ff4b88);
+        }
+        .hidden {
+            display: none;
+        }
+        .task-container {
+            width: 75%;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border: 2px solid #ff758c;
+            text-align: center;
+        }
+        .task-entry input, .task-entry textarea, .task-entry button {
+            width: 80%;
+            padding: 14px;
+            font-size: 18px;
+            border: 2px solid #ff758c;
+            border-radius: 5px;
+        }
+        .task-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .task-list li {
+            background: #ffd3e2;
+            margin: 10px;
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            border-radius: 5px;
+            align-items: center;
+            transition: background 0.3s ease;
+            font-size: 18px;
+        }
+        .task-list li:hover {
+            background: #ffc0cb;
+        }
+        .task-buttons button {
+            margin-left: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .task-buttons button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <img src="https://cdn-icons-png.flaticon.com/512/2910/2910791.png" alt="To-Do List Logo" class="logo">
+    <div class="container" id="login-container">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Enter username">
+        <input type="password" id="password" placeholder="Enter password">
+        <button onclick="login()">Login</button>
+    </div>
+    
+    <div class="task-container hidden" id="task-container">
+        <img src="https://cdn-icons-png.flaticon.com/512/864/864685.png" alt="Task Booking Logo" class="logo">
+        <h2>Task Booking To-Do List</h2>
+        <div class="task-entry">
+            <input type='text' id='taskInput' placeholder='Enter a task...'>
+            <textarea id='taskNotes' placeholder='Enter task details...'></textarea>
+            <input type='datetime-local' id='taskDate'>
+            <input type='text' id='taskLocation' placeholder='Enter task location...'>
+            <button onclick='addTask()'>Add Task</button>
+            <button onclick='clearTasks()'>Clear All</button>
+        </div>
+        <div class="task-list">
+            <ul id='taskList'></ul>
+        </div>
+        <button onclick="logout()">Logout</button>
+    </div>
+    
+    <script>
+        function login() {
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+            if (username.trim() !== "" && password.trim() !== "") {
+                document.getElementById("login-container").classList.add("hidden");
+                document.getElementById("task-container").classList.remove("hidden");
+            } else {
+                alert("Please enter valid credentials");
+            }
+        }
+        function logout() {
+            document.getElementById("task-container").classList.add("hidden");
+            document.getElementById("login-container").classList.remove("hidden");
+        }
+        function addTask() {
+            let taskInput = document.getElementById("taskInput");
+            let taskNotes = document.getElementById("taskNotes");
+            let taskDate = document.getElementById("taskDate");
+            let taskLocation = document.getElementById("taskLocation");
+            let taskText = taskInput.value.trim();
+            let taskDetails = taskNotes.value.trim();
+            let taskTime = taskDate.value;
+            let taskPlace = taskLocation.value.trim();
+            if (taskText === "" || taskTime === "") return;
+            
+            let li = document.createElement("li");
+            li.innerHTML = `<span>${taskText} - ${taskDetails} (Due: ${new Date(taskTime).toLocaleString()} at ${taskPlace})</span>
+                <div class="task-buttons">
+                    <button onclick='editTask(this)'>Modify</button>
+                    <button onclick='deleteTask(this)'>Delete</button>
+                </div>`;
+            document.getElementById("taskList").appendChild(li);
+            taskInput.value = "";
+            taskNotes.value = "";
+            taskDate.value = "";
+            taskLocation.value = "";
+        }
+        function deleteTask(button) {
+            button.closest("li").remove();
+        }
+        function editTask(button) {
+            let taskItem = button.closest("li");
+            let taskText = taskItem.querySelector("span").textContent;
+            let newText = prompt("Modify Task:", taskText);
+            if (newText !== null && newText.trim() !== "") {
+                taskItem.querySelector("span").textContent = newText;
+            }
+        }
+    </script>
+</body>
+</html>
